@@ -17,30 +17,6 @@ blocks:
             - cache restore
             - npm install
             - cache store
-  - name: Run tests
-    task:
-      prologue:
-        commands:
-          - checkout
-          - sdkmanager "platform-tools" "platforms;android-24" "emulator"
-          - sdkmanager "system-images;android-24;default;armeabi-v7a"
-          - >-
-            echo no | avdmanager create avd -n Nexus_S_API_24 -k
-            "system-images;android-24;default;armeabi-v7a" --device "Nexus S"
-      jobs:
-        - name: unit and integration tests
-          commands:
-            - cache restore
-            - npm test
-        - name: e2e tests
-          commands:
-            - npm install -g detox
-            - cache restore
-            - npm run detox-android-build-release
-            - npm run detox-android-test-release
-            - >-
-              artifact push workflow
-              android/app/build/outputs/apk/release/app-release.apk
 promotions:
   - name: Build app
     pipeline_file: release-build-android.yml
@@ -48,3 +24,5 @@ promotions:
       - result: passed
         branch:
           - master
+    auto_promote:
+      when: branch = 'master' AND result = 'passed'
